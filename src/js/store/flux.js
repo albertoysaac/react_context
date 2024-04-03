@@ -1,7 +1,7 @@
 const getState = ({ getStore, getActions, setStore }) => {
   return {
     store: {
-      slugMod: "",
+      cLNameMod: "",
       contacts: [
         {
           name: "contacto 1",
@@ -21,9 +21,9 @@ const getState = ({ getStore, getActions, setStore }) => {
           ),
         });
       },
-      setSlug: (slug) => {
+      setCLNameMod: (clName) => {
         setStore({
-          slugMod: slug + "/",
+          cLNameMod: clName + "/",
         });
       },
 
@@ -34,17 +34,17 @@ const getState = ({ getStore, getActions, setStore }) => {
           .then((data) => {
             console.log(data);
             if (data.ok) {
-              setStore({ slugMod: clName + "/" });
+              setStore({ cLNameMod: clName + "/" });
             }
             if (!data.ok) {
-              setStore({ slugMod: "" });
+              setStore({ cLNameMod: "" });
             }
           });
       },
       myContacts: () => {
         const method = "GET";
         getActions()
-          .query(method, getStore().slugMod)
+          .query(method, getStore().cLNameMod)
           .then((data) => {
             if (data.ok) {
               console.log(data.json());
