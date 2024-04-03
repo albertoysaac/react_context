@@ -1,76 +1,45 @@
 const getState = ({ getStore, getActions, setStore }) => {
-  return {
-    store: {
-      slugMod: "",
-      contacts: [
-        {
-          name: "contacto 1",
-          phone: "white",
-          email: "white",
-          address: "white",
-          id: "1",
-        },
-      ],
-    },
-    actions: {
-      deleteContact: (indexToDelete) => {
-        const store = getStore();
-        setStore({
-          contacts: store.contacts.filter(
-            (contact, index) => index != indexToDelete
-          ),
-        });
-      },
-      setSlug: (slug) => {
-        setStore({
-          slugMod: slug + "/",
-        });
-      },
+	return {
+		store: {
+			demo: [
+				{
+					title: "FIRST",
+					background: "white",
+					initial: "white"
+				},
+				{
+					title: "SECOND",
+					background: "white",
+					initial: "white"
+				}
+			]
+		},
+		actions: {
+			// Use getActions to call a function within a fuction
+			exampleFunction: () => {
+				getActions().changeColor(0, "green");
+			},
+			loadSomeData: () => {
+				/**
+					fetch().then().then(data => setStore({ "foo": data.bar }))
+				*/
+			},
+			changeColor: (index, color) => {
+				//get the store
+				const store = getStore();
 
-      clNameCheck: (clName) => {
-        const method = "GET";
-        getActions()
-          .query(method, clName)
-          .then((data) => {
-            console.log(data);
-            if (data.ok) {
-              setStore({ slugMod: clName + "/" });
-            }
-            if (!data.ok) {
-              setStore({ slugMod: "" });
-            }
-          });
-      },
-      myContacts: () => {
-        const method = "GET";
-        getActions()
-          .query(method, getStore().slugMod)
-          .then((data) => {
-            if (data.ok) {
-              console.log(data.json());
-              setStore({
-                contacts: data.json(),
-              });
-            }
-          })
-          .catch((error) => {
-            console.log(error);
-          });
-      },
-      query: (method, mod) => {
-        const url = "https://playground.4geeks.com/contact/agendas/";
-        const resquest = {
-          method: method,
-          headers: {
-            "Content-Type": "application/json",
-          },
-        };
-        return fetch(url + mod, resquest).then((response) => {
-          return response;
-        });
-      },
-    },
-  };
+				//we have to loop the entire demo array to look for the respective index
+				//and change its color
+				const demo = store.demo.map((elm, i) => {
+					if (i === index) elm.background = color;
+					return elm;
+				});
+
+				//reset the global store
+				setStore({ demo: demo });
+			}
+		}
+	};
 };
 
 export default getState;
