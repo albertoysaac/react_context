@@ -1,0 +1,9 @@
+.img-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.img-contact {
+  padding: 10px;
+  border-radius: 50%;
+}
