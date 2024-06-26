@@ -2,111 +2,118 @@ const getState = ({ getStore, getActions, setStore }) => {
   return {
     store: {
 
-      cLNameMod: {
-        cListName: "",   
-        status: "",
-      },
+      contactListName: "",
       contacts: [],
     },
     //****************************************************************** */
 
-    actions: {           
-      deleteContact: (indexToDelete) => { 
-        const store = getStore();
-        setStore({
-          contacts: store.contacts.filter(
-            (contact, index) => index != indexToDelete
-          ),
-        });
-      },
-
-      setCLNameMod: (clName, status) => {
-        setStore({
-          cLNameMod: {
-            cListName: clName,
-            status: status,
-          },
-        });
-      },
-
-      clNameCheck: (clName) => {
-        const method = "GET";
-        getActions()
-          .queryhandler(method, clName)
-          .then(({ status, data }) => {
-            console.log("clNameCheck status");
-            console.log(data.slug);
-            console.log(data.contacts);
-            if (status === 200 && data.slug === clName) {
-              if (data.contacts !== undefined && data.contacts !== null) {
-                getActions().setCLNameMod(data.slug, status);
-                setStore({ contacts: data.contacts });
-              }
-              if (
-                (data.contacts === undefined || data.contacts === null) &&
-                data.slug === clName
-              ) {
-                getActions().setCLNameMod(clName, data.status);
-                setStore({ contacts: [] });
-              }
-            } else {
-              throw new Error(
-                "Network response was not ok, message: " + response.status
-              );
-            }
-          });
-      },
-
-      myContacts: () => {
-        const method = "GET";
-        console.log("----myContacts----");
-        let name = getStore().cLNameMod.cListName;
-        let status = getStore().cLNameMod.status;
-        console.log(name, status);
-        if (name !== "" && status === 200) {
-          getActions()
-            .queryhandler(method, getStore().cLNameMod.cListName + "/")
-            .then(({ status, data }) => {
-              if (status === 200) {
-                setStore({ contacts: data.contacts });
-                console.log(data);
-              } else {
-                throw new Error(
-                  "Network response was not ok, message: " + response.status
-                );
-              }
-            })
-            .then((data) => {
-              setStore({ contacts: [data.contacts] });
-              console.log(getStore().contacts);
-            })
-            .catch((error) => {
-              console.log(error);
-            });
+    actions: {       
+      deleteContactList: async (clName) => {
+        const method = "DELETE";
+        const response = await getActions().queryhandler(method, clName, null);
+        if(response.ok){
+          console.log(response);
         }
       },
 
-      queryhandler: (method, mod) => {
-        const url = "https://playground.4geeks.com/contact/agendas/";
-        const resquest = {
-          method: method,
-          headers: {
-            "Content-Type": "application/json",
-          },
-        };
-        console.log(url + mod);
+      signup: async (clName) => {
+        const method = "POST";
+        const response = await getActions().queryhandler(method, clName, null);
+        if(response){
+          setStore({contactListName: clName,contacts: []});
+        }
+        else{
+          setStore({contactListName: "no existe"});
+        }
+      },
 
-        return fetch(url + mod, resquest).
-        then((response) => {
-          try {
-            let requestStatus = response.status;
-            return response.json().then((data) => {
-              return { status: requestStatus, data: data };
-            });
-          } catch (error) {
-            console.log(error.message);
+      
+
+      login: async(clName) => {
+        const method = "GET";
+        const response = await getActions().queryhandler(method, clName, null)
+          if(response){
+            setStore({contactListName: clName,contacts: response.contacts});
+            console.log(response.contacts);
           }
-        });
+          else{
+            console.log("No existe la agenda");
+            setStore({contactListName: "no existe"});
+          }
+
+      },
+
+      addContact: async(clName, body) => {
+        const method = "POST";
+        const response = await getActions().queryhandler(method, clName+"/contacts/" , body)
+        if(response){
+          setStore({contacts: getStore().contacts.concat(response)});
+          return true
+        }
+        else{
+          return false
+        }
+        
+      },
+
+      updateContact: async(contactID , body) => {
+        const method = "PUT";
+        const response = await getActions().queryhandler(method, getStore().contactListName+"/contacts/"+contactID , body)
+        if(response){
+          setStore({contacts: getStore().contacts.map((contact) => contact.id == contactID ? response : contact)});
+          return true
+        }
+      },
+      
+      deleteContact : async(contactID) => {
+        const method = "DELETE";
+        const response = await getActions().queryhandler(method, getStore().contactListName+"/contacts/"+contactID , null)
+        if(response){
+          setStore({contacts: getStore().contacts.filter((contact) => contact.id !== contactID)});
+        }
+        else{
+          console.log("No se pudo borrar el contacto");
+        }
+      },
+
+
+      queryhandler: async (method, mod, body) => {
+        let resquest;
+        const url = "https://playground.4geeks.com/contact/agendas/";
+        if(body === null){
+          resquest = {
+            method: method, 
+            headers: {
+              "Content-Type": "application/json",
+            },
+          };
+        }
+        else{
+          resquest = {
+            method: method, 
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify(body),
+          };
+        }
+        console.log(url + mod);
+        console.log(resquest);
+        const response = await fetch(url + mod, resquest)
+        console.log(response);
+        if(response.ok){
+          if(method === "DELETE"){
+            return true
+          }
+          else{
+          const data = await response.json()
+          console.log(data);
+          return data}
+
+        }
+        else{
+          return false
+        }
       },
     },
   };
