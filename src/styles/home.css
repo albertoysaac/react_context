@@ -1,1 +1,28 @@
+.bi{
+    font-size: 30px;
+    
+}
 
+.modal-edit{
+    margin: 0;
+    margin-bottom: 15px;
+    font-size: 25px;
+}
+.btn-close{
+    font-size: 20px;
+}
+
+.contact-container{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 300px;
+}
+
+.card-footer{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: #ffff;
+    padding: 10px;
+}
